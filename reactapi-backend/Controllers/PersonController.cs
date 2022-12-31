@@ -6,36 +6,56 @@ namespace reactapi_backend.Controllers
     [ApiController]
     public class PersonController : ControllerBase
     {
+        private readonly PersonContext _context;
+        public PersonController(PersonContext context)
+        {
+            _context = context;
+        }
+
         // GET: api/<PersonController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult<IEnumerable<Person>> Get()
         {
-            return new string[] { "value1", "value2" };
+            var persons = _context.Persons;
+            return Ok(persons);
         }
 
         // GET api/<PersonController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult<Person> Get(int id)
         {
-            return "value";
+            var person = _context.Persons.FirstOrDefault(x => x.Id == id);
+            return Ok(person);
         }
 
         // POST api/<PersonController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Person person)
         {
+            _context.Persons.Add(person);
+            _context.SaveChanges();
+            return Ok(person);
         }
 
-        // PUT api/<PersonController>/5
+        // PATCH api/<PersonController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, [FromBody] Person person)
         {
+            var updatedPerson = _context.Persons.Find(id);
+            updatedPerson.Name = person.Name;
+            updatedPerson.Age = person.Age;
+            _context.SaveChanges();
+            return Ok(updatedPerson);
         }
 
         // DELETE api/<PersonController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            var person = _context.Persons.Find(id);
+            _context.Persons.Remove(person);
+            _context.SaveChanges();
+            return Ok(person);
         }
     }
 }
